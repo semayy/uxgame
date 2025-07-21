@@ -16,6 +16,7 @@
             color: #e5e7eb; /* text-gray-200 */
             transition: background-color 1.5s ease-out;
             background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Cg fill="%231f2937" fill-opacity="0.4"%3E%3Ccircle cx="50" cy="50" r="1" /%3E%3Ccircle cx="10" cy="10" r="1" /%3E%3Ccircle cx="90" cy="90" r="1" /%3E%3Ccircle cx="10" cy="90" r="1" /%3E%3Ccircle cx="90" cy="10" r="1" /%3E%3Ccircle cx="30" cy="70" r="1" /%3E%3Ccircle cx="70" cy="30" r="1" /%3E%3C/g%3E%3C/svg%3E');
+            overflow-x: hidden; /* Prevent horizontal scroll */
         }
         .font-title {
             font-family: 'Rajdhani', sans-serif;
@@ -129,7 +130,7 @@
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
+<body class="flex items-center justify-center min-h-screen p-2 sm:p-4">
 
     <!-- Welcome Screen -->
     <div id="welcome-screen" class="w-full max-w-lg mx-auto rounded-2xl p-6 sm:p-8 md:p-10 main-container text-center">
@@ -163,7 +164,7 @@
                 <button id="lang-en" class="lang-btn font-semibold py-2 px-6 rounded-lg">English</button>
             </div>
         </div>
-        <h1 id="welcome-title" class="font-title text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-sky-400 to-green-400 text-transparent bg-clip-text mb-4 tracking-wider"></h1>
+        <h1 id="welcome-title" class="font-title text-3xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-sky-400 to-green-400 text-transparent bg-clip-text mb-4 tracking-wider"></h1>
         <p id="welcome-subtitle" class="text-base sm:text-lg text-gray-300 mb-2"></p>
         <p class="font-title text-lg sm:text-xl text-green-400 font-semibold mb-6 tracking-widest">"Deadline is Dead!"</p>
         <div class="mb-6">
@@ -205,8 +206,8 @@
                     </filter>
                 </defs>
                 <g id="lightning-bolts" style="display: none; filter: url(#glow);">
-                    <path d="M100 0 L80 80 L120 80 L100 160" stroke="#fef08a" stroke-width="4" fill="none" transform="translate(-10, 20) scale(0.6)"/>
-                    <path d="M100 0 L120 80 L80 80 L100 160" stroke="#fef08a" stroke-width="4" fill="none" transform="translate(90, 20) scale(0.6)"/>
+                    <path d="M100 0 L80 80 L120 80 L100 160" stroke="#fef08a" stroke-width="4" fill="none" transform="translate(20, 20) scale(0.6)"/>
+                    <path d="M100 0 L120 80 L80 80 L100 160" stroke="#fef08a" stroke-width="4" fill="none" transform="translate(80, 20) scale(0.6)"/>
                 </g>
                 <g id="alien-body">
                     <path d="M 100,10 C 20,10 0,90 20,140 C 40,190 160,190 180,140 C 200,90 180,10 100,10 Z" fill="url(#alien-head-gradient)" />
@@ -248,13 +249,13 @@
             </div>
 
             <div id="sertifika" class="tab-content active">
-                <h2 id="certificate-title" class="font-title text-4xl sm:text-5xl md:text-6xl font-bold text-yellow-300 mb-4 tracking-wider"></h2>
-                <p id="certificate-name" class="text-2xl sm:text-3xl md:text-4xl font-semibold text-white mb-4"></p>
+                <h2 id="certificate-title" class="font-title text-3xl sm:text-4xl md:text-5xl font-bold text-yellow-300 mb-4 tracking-wider"></h2>
+                <p id="certificate-name" class="text-xl sm:text-3xl md:text-4xl font-semibold text-white mb-4"></p>
                 <p id="certificate-subtitle" class="text-base sm:text-lg text-gray-300 mb-4"></p>
                 <p id="certificate-message" class="text-lg sm:text-xl text-sky-300 mb-6 italic"></p>
                 <div class="my-6 sm:my-8 border-t-2 border-dashed border-gray-600"></div>
                 <p id="completion-time-label" class="text-sm sm:text-md text-gray-400"></p>
-                <p id="final-time" class="text-4xl sm:text-5xl font-bold text-white mb-6 sm:mb-8"></p>
+                <p id="final-time" class="text-3xl sm:text-5xl font-bold text-white mb-6 sm:mb-8"></p>
                 <button id="restart-btn" class="font-title bg-yellow-500 text-gray-900 font-bold py-3 px-10 rounded-lg text-lg sm:text-xl btn-action tracking-wider"></button>
             </div>
 
@@ -688,4 +689,4 @@
         });
     </script>
 </body>
-</html>
+</ht
