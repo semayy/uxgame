@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UX Uzaylıları: Arayüz Savaşları</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Lexend', sans-serif;
+            background-color: #111827; /* Initial Space Blue/Black */
+            color: #e5e7eb; /* text-gray-200 */
+            transition: background-color 1.5s ease-out;
+            background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Cg fill="%231f2937" fill-opacity="0.4"%3E%3Ccircle cx="50" cy="50" r="1" /%3E%3Ccircle cx="10" cy="10" r="1" /%3E%3Ccircle cx="90" cy="90" r="1" /%3E%3Ccircle cx="10" cy="90" r="1" /%3E%3Ccircle cx="90" cy="10" r="1" /%3E%3Ccircle cx="30" cy="70" r="1" /%3E%3Ccircle cx="70" cy="30" r="1" /%3E%3C/g%3E%3C/svg%3E');
+        }
+        .font-title {
+            font-family: 'Rajdhani', sans-serif;
+        }
+        .main-container {
+            border: 2px solid #0ea5e9; /* border-sky-500 */
+            box-shadow: 0 0 30px rgba(14, 165, 233, 0.3);
+            background: rgba(17, 24, 39, 0.8); /* bg-gray-900 with opacity */
+            backdrop-filter: blur(12px);
+        }
+        .btn-action {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-action:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        }
+        .btn-disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background-color: #4b5563 !important; /* gray-600 */
+            transform: none;
+            box-shadow: none;
+        }
+        #character {
+            animation: idle-tremble 5s ease-in-out infinite;
+        }
+        .character-scream #alien-body {
+            animation: electric-shock 0.5s ease-in-out;
+        }
+        .character-scream #lightning-bolts {
+            display: block;
+            animation: flash 0.5s linear;
+        }
+        #welcome-alien {
+            animation: welcome-float 6s ease-in-out infinite;
+        }
+        @keyframes welcome-float {
+            0% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-10px) rotate(3deg); }
+            100% { transform: translateY(0) rotate(0); }
+        }
+        @keyframes idle-tremble {
+            0% { transform: translate(0, 0) rotate(0); }
+            15% { transform: translate(-1px, 2px) rotate(-0.5deg); }
+            30% { transform: translate(1px, -2px) rotate(0.5deg); }
+            45% { transform: translate(1px, 1px) rotate(-0.5deg); }
+            60% { transform: translate(-1px, -1px) rotate(0.5deg); }
+            75% { transform: translate(0, 1px) rotate(0); }
+            100% { transform: translate(0, 0) rotate(0); }
+        }
+        @keyframes electric-shock {
+            0%   { transform: translate(0, 0); filter: brightness(1); }
+            10%  { transform: translate(-5px, 5px) rotate(-2deg); filter: brightness(2); }
+            20%  { transform: translate(5px, -5px) rotate(2deg); filter: brightness(1); }
+            30%  { transform: translate(-3px, 3px) rotate(-1deg); filter: brightness(2.5); }
+            40%  { transform: translate(3px, -3px) rotate(1deg); filter: brightness(1); }
+            50%  { transform: translate(-5px, -2px) rotate(2deg); filter: brightness(2); }
+            60%  { transform: translate(2px, 5px) rotate(-2deg); filter: brightness(1); }
+            70%  { transform: translate(-2px, -5px) rotate(1deg); filter: brightness(2.5); }
+            80%  { transform: translate(5px, 2px) rotate(-1deg); filter: brightness(1); }
+            90%  { transform: translate(-5px, 5px) rotate(2deg); filter: brightness(2); }
+            100% { transform: translate(0, 0); filter: brightness(1); }
+        }
+        @keyframes flash {
+            0%, 100% { opacity: 0; }
+            10%, 30%, 50%, 70%, 90% { opacity: 1; transform: scale(1.1); }
+            20%, 40%, 60%, 80% { opacity: 0; transform: scale(1); }
+        }
+        .certificate {
+            background: radial-gradient(circle, #1f2937, #111827);
+            border: 4px double #facc15; /* yellow-400 */
+        }
+        .timer {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .85; transform: scale(1.03); }
+        }
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap; /* Prevent text wrapping in tabs */
+        }
+        .tab-btn.active {
+            background-color: rgba(14, 165, 233, 0.2);
+            border-color: #0ea5e9;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .lang-btn {
+            border: 2px solid #374151;
+            transition: all 0.3s ease;
+        }
+        .lang-btn.selected {
+            border-color: #0ea5e9;
+            background-color: rgba(14, 165, 233, 0.2);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- Welcome Screen -->
+    <div id="welcome-screen" class="w-full max-w-lg mx-auto rounded-2xl p-6 sm:p-8 md:p-10 main-container text-center">
+        <div class="flex justify-center mb-4">
+            <svg id="welcome-alien" class="w-20 h-20" viewBox="0 0 200 200">
+                <defs>
+                    <radialGradient id="alien-head-gradient-welcome" cx="50%" cy="30%" r="60%">
+                        <stop offset="0%" stop-color="#4ade80" />
+                        <stop offset="80%" stop-color="#16a34a" />
+                        <stop offset="100%" stop-color="#14532d" />
+                    </radialGradient>
+                     <radialGradient id="eye-gradient-welcome" cx="40%" cy="30%" r="70%">
+                        <stop offset="0%" stop-color="#333" />
+                        <stop offset="100%" stop-color="#000" />
+                    </radialGradient>
+                </defs>
+                <g>
+                    <path d="M 100,10 C 20,10 0,90 20,140 C 40,190 160,190 180,140 C 200,90 180,10 100,10 Z" fill="url(#alien-head-gradient-welcome)" />
+                    <path d="M 100,10 C 20,10 0,90 20,140 C 40,190 160,190 180,140 C 200,90 180,10 100,10 Z" stroke="rgba(0,0,0,0.2)" stroke-width="3" fill="none" />
+                    <ellipse cx="70" cy="100" rx="25" ry="35" fill="url(#eye-gradient-welcome)" transform="rotate(-15, 70, 100)" />
+                    <ellipse cx="130" cy="100" rx="25" ry="35" fill="url(#eye-gradient-welcome)" transform="rotate(15, 130, 100)" />
+                    <circle cx="65" cy="90" r="3" fill="rgba(255,255,255,0.5)" />
+                    <circle cx="125" cy="90" r="3" fill="rgba(255,255,255,0.5)" />
+                </g>
+             </svg>
+        </div>
+        <div class="mb-4">
+            <h2 id="lang-select-title" class="text-lg text-gray-300 mb-3">Dil Seçin / Select Language</h2>
+            <div class="flex justify-center gap-4">
+                <button id="lang-tr" class="lang-btn selected font-semibold py-2 px-6 rounded-lg">Türkçe</button>
+                <button id="lang-en" class="lang-btn font-semibold py-2 px-6 rounded-lg">English</button>
+            </div>
+        </div>
+        <h1 id="welcome-title" class="font-title text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-sky-400 to-green-400 text-transparent bg-clip-text mb-4 tracking-wider"></h1>
+        <p id="welcome-subtitle" class="text-base sm:text-lg text-gray-300 mb-2"></p>
+        <p class="font-title text-lg sm:text-xl text-green-400 font-semibold mb-6 tracking-widest">"Deadline is Dead!"</p>
+        <div class="mb-6">
+            <input type="text" id="player-name" class="w-full bg-gray-800 border-2 border-gray-600 rounded-lg py-3 px-4 text-white text-lg placeholder-gray-400 focus:outline-none focus:border-sky-500 transition">
+        </div>
+        <button id="start-btn" class="w-full bg-sky-600 text-white font-bold py-3 px-4 rounded-lg text-xl btn-action font-title tracking-wider"></button>
+    </div>
+
+    <!-- Game Container -->
+    <div id="game-container" class="w-full max-w-2xl mx-auto rounded-2xl p-4 sm:p-6 md:p-8 main-container transition-all duration-500 hidden">
+        <div class="flex justify-between items-center mb-4 sm:mb-6">
+            <div>
+                <h2 id="stage-indicator" class="font-title text-xl sm:text-2xl font-bold text-sky-400"></h2>
+                <p id="question-counter" class="text-xs sm:text-sm text-gray-400"></p>
+            </div>
+            <div id="timer" class="text-xl sm:text-2xl font-bold text-red-500 bg-gray-900 px-3 py-1 sm:px-4 sm:py-2 rounded-lg timer">00:00</div>
+        </div>
+        <div class="w-full bg-gray-700 rounded-full h-2.5 mb-4 sm:mb-6">
+            <div id="progress-bar" class="bg-sky-500 h-2.5 rounded-full" style="width: 0%; transition: width 0.5s ease;"></div>
+        </div>
+        <div class="flex justify-center mb-4 sm:mb-6">
+             <svg id="character" class="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36" viewBox="0 0 200 200">
+                <defs>
+                    <radialGradient id="alien-head-gradient" cx="50%" cy="30%" r="60%">
+                        <stop offset="0%" stop-color="#4ade80" /> <!-- green-400 -->
+                        <stop offset="80%" stop-color="#16a34a" /> <!-- green-600 -->
+                        <stop offset="100%" stop-color="#14532d" /> <!-- green-800 -->
+                    </radialGradient>
+                     <radialGradient id="eye-gradient" cx="40%" cy="30%" r="70%">
+                        <stop offset="0%" stop-color="#333" />
+                        <stop offset="100%" stop-color="#000" />
+                    </radialGradient>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                <g id="lightning-bolts" style="display: none; filter: url(#glow);">
+                    <path d="M100 0 L80 80 L120 80 L100 160" stroke="#fef08a" stroke-width="4" fill="none" transform="translate(-10, 20) scale(0.6)"/>
+                    <path d="M100 0 L120 80 L80 80 L100 160" stroke="#fef08a" stroke-width="4" fill="none" transform="translate(90, 20) scale(0.6)"/>
+                </g>
+                <g id="alien-body">
+                    <path d="M 100,10 C 20,10 0,90 20,140 C 40,190 160,190 180,140 C 200,90 180,10 100,10 Z" fill="url(#alien-head-gradient)" />
+                    <path d="M 100,10 C 20,10 0,90 20,140 C 40,190 160,190 180,140 C 200,90 180,10 100,10 Z" stroke="rgba(0,0,0,0.2)" stroke-width="3" fill="none" />
+                    <ellipse cx="70" cy="100" rx="25" ry="35" fill="url(#eye-gradient)" transform="rotate(-15, 70, 100)" />
+                    <ellipse cx="130" cy="100" rx="25" ry="35" fill="url(#eye-gradient)" transform="rotate(15, 130, 100)" />
+                    <circle cx="65" cy="90" r="3" fill="rgba(255,255,255,0.5)" />
+                    <circle cx="125" cy="90" r="3" fill="rgba(255,255,255,0.5)" />
+                    <path id="mouth" d="M 90,160 Q 100,170 110,160" stroke="#14532d" stroke-width="4" fill="none" stroke-linecap="round" />
+                </g>
+             </svg>
+        </div>
+        <div class="bg-gray-900/70 p-4 rounded-lg text-center mb-6 min-h-[120px] sm:min-h-[100px] flex items-center justify-center">
+            <p id="question-text" class="text-lg sm:text-xl md:text-2xl font-semibold text-white"></p>
+        </div>
+        <div class="flex justify-center items-center gap-6 sm:gap-8">
+            <button id="true-btn" class="w-20 h-20 sm:w-24 sm:h-24 bg-green-600 text-white font-bold rounded-full flex items-center justify-center btn-action"><svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 sm:w-12 sm:h-12" fill="currentColor" viewBox="0 0 16 16"><path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022z"/></svg></button>
+            <button id="false-btn" class="w-20 h-20 sm:w-24 sm:h-24 bg-red-600 text-white font-bold rounded-full flex items-center justify-center btn-action"><svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 sm:w-12 sm:h-12" fill="currentColor" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/></svg></button>
+        </div>
+    </div>
+
+    <!-- Explanation Modal -->
+    <div id="explanation-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden">
+        <div class="rounded-2xl p-6 sm:p-8 max-w-lg w-full main-container text-center">
+            <h2 id="explanation-title" class="font-title text-2xl sm:text-3xl font-bold text-sky-400 mb-4"></h2>
+            <p id="explanation-text" class="text-base sm:text-lg text-gray-300 mb-6"></p>
+            <button id="next-btn" class="font-title bg-sky-600 text-white font-bold py-2 px-8 rounded-lg btn-action tracking-wider"></button>
+        </div>
+    </div>
+    
+    <!-- Certificate Screen -->
+    <div id="final-screen" class="fixed inset-0 bg-gray-900/90 flex items-center justify-center p-4 hidden">
+        <div class="certificate max-w-3xl w-full p-4 sm:p-6 md:p-8 text-center rounded-lg">
+            <div id="tabs" class="flex flex-wrap justify-center gap-2 sm:gap-4 mb-6 border-b border-gray-700 pb-3">
+                <button data-tab="sertifika" class="tab-btn active text-sm sm:text-base"></button>
+                <button data-tab="hakkinda" class="tab-btn text-sm sm:text-base"></button>
+                <button data-tab="sozluk" class="tab-btn text-sm sm:text-base"></button>
+                <button data-tab="iletisim" class="tab-btn text-sm sm:text-base"></button>
+            </div>
+
+            <div id="sertifika" class="tab-content active">
+                <h2 id="certificate-title" class="font-title text-4xl sm:text-5xl md:text-6xl font-bold text-yellow-300 mb-4 tracking-wider"></h2>
+                <p id="certificate-name" class="text-2xl sm:text-3xl md:text-4xl font-semibold text-white mb-4"></p>
+                <p id="certificate-subtitle" class="text-base sm:text-lg text-gray-300 mb-4"></p>
+                <p id="certificate-message" class="text-lg sm:text-xl text-sky-300 mb-6 italic"></p>
+                <div class="my-6 sm:my-8 border-t-2 border-dashed border-gray-600"></div>
+                <p id="completion-time-label" class="text-sm sm:text-md text-gray-400"></p>
+                <p id="final-time" class="text-4xl sm:text-5xl font-bold text-white mb-6 sm:mb-8"></p>
+                <button id="restart-btn" class="font-title bg-yellow-500 text-gray-900 font-bold py-3 px-10 rounded-lg text-lg sm:text-xl btn-action tracking-wider"></button>
+            </div>
+
+            <div id="hakkinda" class="tab-content text-left p-2 sm:p-4">
+                 <h3 id="about-title" class="font-title text-2xl sm:text-3xl font-bold text-sky-400 mb-4"></h3>
+                 <p id="about-text" class="text-sm sm:text-base text-gray-300"></p>
+            </div>
+
+            <div id="sozluk" class="tab-content text-left p-2 sm:p-4 max-h-[300px] sm:max-h-[400px] overflow-y-auto">
+                <h3 id="glossary-title" class="font-title text-2xl sm:text-3xl font-bold text-sky-400 mb-4"></h3>
+                <div id="glossary-content" class="space-y-4"></div>
+            </div>
+
+            <div id="iletisim" class="tab-content p-2 sm:p-4">
+                 <h3 id="contact-title" class="font-title text-2xl sm:text-3xl font-bold text-sky-400 mb-4"></h3>
+                 <p id="contact-text" class="text-sm sm:text-base text-gray-300 mb-6"></p>
+                 <a id="linkedin-link" href="https://www.linkedin.com/in/semayy/" target="_blank" class="inline-block bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg btn-action text-sm sm:text-base"></a>
+                 <p id="copyright-text" class="text-xs text-gray-500 mt-8"></p>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- API Key ---
+            const apiKey = "AIzaSyCEEywiObjmjA1ecwseMortdDKnt5Bwjrc";
+
+            // --- Translations and Game Data ---
+            const translations = {
+                tr: {
+                    welcomeTitle: "UX UZAYLILARI",
+                    welcomeSubtitle: "Arayüz Savaşlarına Hoş Geldin!",
+                    playerNamePlaceholder: "Tasarımcı Adını Gir...",
+                    startButton: "TESTİ BAŞLAT",
+                    stage: "PROTOKOL",
+                    question: "SİNYAL",
+                    explanationTitle: "EVRENSEL BİLGİ",
+                    nextButton: "SİNYALİ ALDIM",
+                    certificateTitle: "GÖREV TAMAMLANDI!",
+                    certificateSubtitle: "Sen bir galaktik UX gurususun artık.",
+                    completionTimeLabel: "Görev Süresi:",
+                    restartButton: "YENİ GÖREV",
+                    tabCertificate: "Sertifika",
+                    tabAbout: "Görev Kaydı",
+                    tabGlossary: "Envanter",
+                    tabContact: "Yaratıcı",
+                    aboutTitle: "Görev Kaydı",
+                    aboutText: "Bu simülasyon, Dünyalı tasarımcıların UX ve UI prensiplerini sıkıcı dersler yerine, galaksiler arası bir macera formatında öğrenmeleri için tasarlanmıştır. Amaç, evrensel tasarım yasalarını keşfederken eğlenmek ve 'deadline' kavramının anlamsızlığını kanıtlamaktır.",
+                    glossaryTitle: "Tasarımcı Envanteri",
+                    contactTitle: "Yaratıcı",
+                    contactText: "Bu içerik, Görsel İletişim Tasarımı ve Dijital Dönüşüm Uzmanı Semanur Ayyıldız tarafından eğlence amaçlı oluşturulmuştur.",
+                    linkedinLink: "LinkedIn'de Bağlantı Kur",
+                    copyrightText: "© 2025 Tüm hakları saklıdır.",
+                    correctMessages: ["Evrensel bir doğru!", "Sinyal pozitif!", "Harika bir sezgi!", "İşte bu, kozmik zeka!", "Tam isabet!", "Mükemmel!"],
+                    wrongMessages: ["Negatif uzay boşluğu gibi, yanlış!", "Sinyal karıştı sanırım.", "Bu bilgi karadelikte kaybolmuş.", "Hmm, bu evrenin yasalarına aykırı.", "Tekrar dene, vazgeçmek yok!", "Bu frekans doğru değil."],
+                    guruMessages: {
+                        fast: "Işık hızında bir zeka! Evrenin en hızlı tasarımcısı sensin.",
+                        medium: "Etkileyici bir görev süresi! Galaktik konseyde adın geçiyor.",
+                        slow: "Stratejik ve emin adımlarla! Bilgi, aceleye gelmez. Görev başarıyla tamamlandı."
+                    },
+                    questions: [
+                        { statement: "Jakob Nielsen'in 10 Kullanılabilirlik Heuristiği'nden biri 'Estetik ve minimalist tasarım'dır.", isTrue: true, explanation: "Evet, bu doğru. Arayüzler, konuyla ilgisiz veya nadiren ihtiyaç duyulan bilgileri içermemelidir." },
+                        { statement: "Wireframe, bir web sayfasının renkleri ve fontları içeren detaylı bir görsel tasarımıdır.", isTrue: false, explanation: "Yanlış. Wireframe, bir arayüzün düşük sadakatli, temel yapısal bir temsilidir ve işlevselliğe odaklanır." },
+                        { statement: "'Above the fold', bir kullanıcının sayfayı kaydırmadan gördüğü ilk ekran alanını ifade eder.", isTrue: true, explanation: "Kesinlikle! En önemli bilgilerin ve eylem çağrılarının genellikle bu alana yerleştirilmesi önerilir." },
+                        { statement: "Kullanıcı Arayüzü (UI), bir kullanıcının bir ürünle olan genel deneyiminin tamamıdır.", isTrue: false, explanation: "Bu, Kullanıcı Deneyimi'nin (UX) tanımıdır. UI, bu deneyimin görsel kısmıdır." },
+                        { statement: "Hick Yasası, seçenek sayısı arttıkça karar verme süresinin de artacağını belirtir.", isTrue: true, explanation: "Doğru. Bu yasa, menüler veya seçenek listeleri tasarlarken önemlidir. Seçenekleri azaltmak daha hızlı karar vermeye yardımcı olur." },
+                        { statement: "Duyarlı Tasarım, bir web sitesinin sadece mobil cihazlarda iyi görünmesini sağlar.", isTrue: false, explanation: "Duyarlı tasarım, bir sitenin düzeninin, mobil, tablet, masaüstü gibi tüm cihazların ekran boyutuna uyum sağlamasıdır." },
+                        { statement: "Affordance, bir nesnenin özelliklerinin, onun nasıl kullanılabileceğini ima etmesidir.", isTrue: true, explanation: "Örneğin, bir kapı kolu 'döndürülmeyi', bir düğme ise 'basılmayı' sağlar." },
+                        { statement: "Kullanıcı Akışı, bir kullanıcının bir görevi tamamlamak için izlediği adımların görsel temsilidir.", isTrue: true, explanation: "Bu akış şemaları, tasarımcıların potansiyel sürtünme noktalarını belirlemelerine yardımcı olur." },
+                        { statement: "Negatif Alan (Whitespace), tasarımda boşa harcanmış, kullanılmayan alandır.", isTrue: false, explanation: "Aksine, negatif alan, içeriği düzenlemek ve okunabilirliği artırmak için kullanılan aktif bir tasarım elemanıdır." },
+                        { statement: "Fitt's Yasası, bir hedefe ulaşma süresinin, hedefin uzaklığı ve boyutu ile ilgili olduğunu belirtir.", isTrue: true, explanation: "Bu yasaya göre, daha büyük ve daha yakın hedeflere ulaşmak daha hızlıdır." },
+                        { statement: "A/B testi, iki tamamen farklı kullanıcı grubunu karşılaştırmak için kullanılır.", isTrue: false, explanation: "A/B testi, bir arayüzün iki varyasyonunu (A ve B) rastgele kullanıcı gruplarına göstererek hangisinin daha iyi performans gösterdiğini belirler." },
+                        { statement: "Persona, gerçek kullanıcılardan toplanan verilere dayanan kurgusal bir karakterdir.", isTrue: true, explanation: "Personalar, tasarım ekibinin hedef kullanıcıların ihtiyaçlarını ve hedeflerini anlamasına yardımcı olur." },
+                        { statement: "Prototip, piyasaya sürülmeye hazır, tamamen işlevsel bir ürünün son versiyonudur.", isTrue: false, explanation: "Prototip, bir ürünün fikirlerini test etmek için kullanılan bir simülasyon veya örnek versiyonudur." },
+                        { statement: "Kart Gruplama, kullanıcıların bilgi mimarisini oluşturmaya yardımcı olmak için içerik öğelerini gruplara ayırdığı bir yöntemdir.", isTrue: true, explanation: "Bu yöntem, bir sitenin menü yapısının kullanıcılar için ne kadar mantıklı olduğunu anlamak için kullanılır." },
+                        { statement: "Kullanılabilirlik Testi, bir ürünün ne kadar popüler olacağını ölçmek için yapılır.", isTrue: false, explanation: "Kullanılabilirlik testi, gerçek kullanıcıların bir ürünle görevleri ne kadar kolay tamamlayabildiğini gözlemleyerek sorunları belirler." },
+                        { statement: "Agile metodolojisi, projenin en başında tüm gereksinimlerin belirlendiği bir yaklaşımdır.", isTrue: false, explanation: "Bu, Şelale (Waterfall) modelidir. Agile, projenin küçük adımlarla geliştirildiği esnek bir yaklaşımdır." },
+                        { statement: "Bir Tasarım Sistemi, yeniden kullanılabilir bileşenlerden ve standartlardan oluşan bir koleksiyondur.", isTrue: true, explanation: "Tasarım sistemleri, büyük ölçekli ürünlerde tutarlılığı sağlamak ve verimliliği artırmak için kullanılır." },
+                        { statement: "Lorem Ipsum, bir tasarımın son ve onaylanmış metin içeriğidir.", isTrue: false, explanation: "Lorem Ipsum, bir tasarımın görsel yerleşimini göstermek için kullanılan anlamsız bir yer tutucu metindir." },
+                        { statement: "Empati Haritası, bir kullanıcının ne söylediğini, düşündüğünü, hissettiğini ve yaptığını anlamak için kullanılan bir araçtır.", isTrue: true, explanation: "Bu araç, tasarımcıların kullanıcıların deneyimine daha derin bir anlayış ve empati geliştirmelerine yardımcı olur." },
+                        { statement: "MVP (Minimum Viable Product), bir ürünün tüm olası özelliklerini içeren ilk sürümüdür.", isTrue: false, explanation: "MVP, bir ürünün, erken benimseyenleri tatmin etmek ve geri bildirim toplamak için yeterli özelliğe sahip olan sürümüdür." },
+                        { statement: "Erişilebilirlik (a11y), bir ürünün yalnızca engelli kullanıcılar tarafından kullanılabilir olmasını sağlamaktır.", isTrue: false, explanation: "Erişilebilirlik, bir ürünün engelli olan veya olmayan herkes tarafından, mümkün olan en geniş kitle tarafından kullanılabilir olmasını sağlamaktır." },
+                        { statement: "Karanlık Desenler, kullanıcıları istemedikleri şeyleri yapmaya kandırmak için tasarlanmış arayüzlerdir.", isTrue: true, explanation: "Örneğin, bir abonelikten çıkmayı zorlaştırmak veya gizlice sepete ürün eklemek karanlık desen örnekleridir." },
+                        { statement: "Gestalt İlkeleri, insanların görsel unsurları nasıl gruplandırdığını açıklayan psikoloji teorileridir.", isTrue: true, explanation: "Yakınlık, Benzerlik gibi ilkeler, tasarımcıların uyumlu ve anlaşılması kolay düzenler oluşturmasına yardımcı olur." },
+                        { statement: "UX Borcu, geliştirme sırasında alınan ve daha sonra düzeltilmesi gereken kötü tasarım kararlarının birikimidir.", isTrue: true, explanation: "Hızlı çözümler, zamanla birikerek ürünün genel kullanılabilirliğini olumsuz etkileyebilir." },
+                        { statement: "CRO (Dönüşüm Oranı Optimizasyonu), bir web sitesinin trafiğini artırmaya odaklanan bir süreçtir.", isTrue: false, explanation: "CRO, mevcut trafiğin, istenen bir eylemi tamamlama yüzdesini artırmaya odaklanır." },
+                        { statement: "Mobil-Önce yaklaşımı, tasarımın önce masaüstü için yapılıp sonra mobile küçültülmesidir.", isTrue: false, explanation: "Tam tersi. Mobil-Önce, tasarıma en küçük ekranla başlamayı ve sonra kademeli olarak büyütmeyi içerir." },
+                        { statement: "Doherty Eşiği, bir sistemin 400ms'den hızlı yanıt vermesinin üretkenliği artırdığını belirtir.", isTrue: true, explanation: "Bu hızda bir yanıt, kullanıcının dikkatini dağıtmaz ve akışta kalmasını sağlar." },
+                        { statement: "İkonografi, bir arayüzde yalnızca estetik amaçlarla kullanılan süslemelerdir.", isTrue: false, explanation: "İkonografi, eylemleri veya fikirleri temsil eden görsel semboller sistemidir ve işlevsel bir amacı vardır." },
+                        { statement: "Kullanıcı Araştırması, tasarım sürecinin yalnızca en başında yapılması gereken bir adımdır.", isTrue: false, explanation: "Kullanıcı araştırması, tasarım sürecinin tüm aşamalarında devam eden yinelemeli bir süreçtir." },
+                        { statement: "Estetik-Kullanılabilirlik Etkisi, kullanıcıların estetik buldukları bir tasarımın daha kullanışlı olduğunu algılama eğilimidir.", isTrue: true, explanation: "Bu bilişsel önyargı, kullanıcıların küçük kullanılabilirlik sorunlarını çekici arayüzlerde göz ardı etme olasılığını artırır." }
+                    ]
+                },
+                en: {
+                    welcomeTitle: "UX ALIENS",
+                    welcomeSubtitle: "Welcome to the Interface Wars!",
+                    playerNamePlaceholder: "Enter Your Designer Name...",
+                    startButton: "START THE TEST",
+                    stage: "PROTOCOL",
+                    question: "SIGNAL",
+                    explanationTitle: "UNIVERSAL KNOWLEDGE",
+                    nextButton: "SIGNAL RECEIVED",
+                    certificateTitle: "MISSION COMPLETE!",
+                    certificateSubtitle: "You are now a galactic UX guru.",
+                    completionTimeLabel: "Mission Time:",
+                    restartButton: "NEW MISSION",
+                    tabCertificate: "Certificate",
+                    tabAbout: "Mission Log",
+                    tabGlossary: "Inventory",
+                    tabContact: "The Creator",
+                    aboutTitle: "Mission Log",
+                    aboutText: "This simulation is designed for Earthling designers to learn UX and UI principles in an intergalactic adventure format, instead of boring lessons. The goal is to have fun while exploring universal design laws and proving the meaninglessness of the concept of 'deadline'.",
+                    glossaryTitle: "Designer's Inventory",
+                    contactTitle: "The Creator",
+                    contactText: "This content was created for entertainment purposes by Semanur Ayyıldız, a Visual Communication Design and Digital Transformation Specialist.",
+                    linkedinLink: "Connect on LinkedIn",
+                    copyrightText: "© 2025 All rights reserved.",
+                    correctMessages: ["A universal truth!", "Signal positive!", "Great intuition!", "That's cosmic intelligence!", "Bullseye!", "Perfect!"],
+                    wrongMessages: ["Like negative space, incorrect!", "I think the signal got scrambled.", "That info is lost in a black hole.", "Hmm, that's against the laws of this universe.", "Try again, don't give up!", "That's not the right frequency."],
+                    guruMessages: {
+                        fast: "Intelligence at the speed of light! You are the fastest designer in the universe.",
+                        medium: "An impressive mission time! Your name is being mentioned in the galactic council.",
+                        slow: "Strategic and steady! Knowledge is not to be rushed. Mission accomplished."
+                    },
+                    questions: [
+                        { statement: "One of Jakob Nielsen's 10 Usability Heuristics is 'Aesthetic and minimalist design'.", isTrue: true, explanation: "Yes, this is correct. Interfaces should not contain information which is irrelevant or rarely needed." },
+                        { statement: "A Wireframe is a detailed visual design of a webpage, including its colors and fonts.", isTrue: false, explanation: "Incorrect. A wireframe is a low-fidelity, basic structural representation of an interface, focusing on layout and functionality." },
+                        { statement: "'Above the fold' refers to the screen area a user sees without scrolling.", isTrue: true, explanation: "Exactly! It's recommended to place the most critical information and calls to action in this area." },
+                        { statement: "User Interface (UI) is the overall experience a user has when interacting with a product.", isTrue: false, explanation: "This is the definition of User Experience (UX). UI is the visual part of that experience." },
+                        { statement: "Hick's Law states that the time it takes to make a decision increases with the number of choices.", isTrue: true, explanation: "Correct. This law is crucial when designing menus. Reducing choices helps users decide faster." },
+                        { statement: "Responsive Design ensures a website looks good only on mobile devices.", isTrue: false, explanation: "Responsive design means a site's layout adapts to all screen sizes, including mobile, tablet, and desktop." },
+                        { statement: "Affordance is when an object's properties imply how it can be used.", isTrue: true, explanation: "For example, a doorknob affords 'turning', and a button affords 'pushing'." },
+                        { statement: "A User Flow is a visual representation of the steps a user takes to complete a task.", isTrue: true, explanation: "These flowcharts help designers identify potential friction points and optimize the user journey." },
+                        { statement: "Whitespace (Negative Space) is wasted, unused space in a design.", isTrue: false, explanation: "On the contrary, whitespace is an active design element used to organize content and improve readability." },
+                        { statement: "Fitt's Law states that the time to acquire a target is a function of the distance to and size of the target.", isTrue: true, explanation: "According to this law, larger and closer targets are faster to reach." },
+                        { statement: "A/B testing is used to compare two completely different groups of users.", isTrue: false, explanation: "A/B testing shows two variations of an interface to random user groups to see which performs better." },
+                        { statement: "A Persona is a fictional character based on data collected from real users.", isTrue: true, explanation: "Personas help the design team understand and empathize with the target users' needs and goals." },
+                        { statement: "A Prototype is the final, fully functional version of a product ready for market launch.", isTrue: false, explanation: "A prototype is a simulation or sample version of a product used to test ideas." },
+                        { statement: "Card Sorting is a method where users group content items to help build the information architecture.", isTrue: true, explanation: "This method is used to understand if a site's menu structure is logical to users." },
+                        { statement: "A Usability Test is conducted to measure how popular a product will be.", isTrue: false, explanation: "A usability test is done to identify usability problems by observing how easily real users can complete tasks." },
+                        { statement: "The Agile methodology is an approach where all requirements are defined at the very beginning.", isTrue: false, explanation: "This describes the Waterfall model. Agile is a flexible approach where the project is developed in small increments." },
+                        { statement: "A Design System is a collection of reusable components and standards for their use.", isTrue: true, explanation: "Design systems are used to ensure consistency and increase efficiency in large-scale products." },
+                        { statement: "Lorem Ipsum is the final, approved text content for a design.", isTrue: false, explanation: "Lorem Ipsum is meaningless placeholder text used to demonstrate the visual layout of a design." },
+                        { statement: "An Empathy Map is a tool used to understand what a user says, thinks, feels, and does.", isTrue: true, explanation: "This tool helps designers develop a deeper understanding of and empathy for the user's experience." },
+                        { statement: "An MVP (Minimum Viable Product) is the first version of a product that includes all possible features.", isTrue: false, explanation: "An MVP is the version of a product with just enough features to satisfy early adopters and gather feedback." },
+                        { statement: "Accessibility (a11y) is about making a product usable only by users with disabilities.", isTrue: false, explanation: "Accessibility is about making a product usable by everyone, with or without disabilities, in the widest range of situations." },
+                        { statement: "Dark Patterns are interfaces designed to trick users into doing things they didn't want to.", isTrue: true, explanation: "For example, making it difficult to unsubscribe or secretly adding items to a cart are dark patterns." },
+                        { statement: "Gestalt Principles are theories of psychology that explain how people group and perceive visual elements.", isTrue: true, explanation: "Principles like Proximity and Similarity help designers create visually coherent and easy-to-understand layouts." },
+                        { statement: "UX Debt is the accumulation of poor design decisions made during development that need to be fixed later.", isTrue: true, explanation: "Quick fixes can accumulate over time, negatively affecting the product's overall usability." },
+                        { statement: "Conversion Rate Optimization (CRO) is a process focused on increasing a website's traffic.", isTrue: false, explanation: "CRO focuses on increasing the percentage of existing traffic that completes a desired action." },
+                        { statement: "The Mobile-First approach means designing the desktop version of a site first, then scaling it down.", isTrue: false, explanation: "It's the opposite. Mobile-first involves starting the design process with the smallest screen and then scaling up." },
+                        { statement: "The Doherty Threshold states that productivity soars when a computer and its users interact at a pace that ensures neither has to wait on the other (approx. 400ms).", isTrue: true, explanation: "A response time under 400ms keeps the user engaged and in a state of flow." },
+                        { statement: "Iconography is the use of decorative elements in an interface for purely aesthetic purposes.", isTrue: false, explanation: "Iconography is a system of visual symbols representing actions or ideas, serving a functional purpose." },
+                        { statement: "User Research is a step that should only be done at the very beginning of the design process.", isTrue: false, explanation: "User research is an iterative process that continues throughout all stages of the design process." },
+                        { statement: "The Aesthetic-Usability Effect is the tendency for users to perceive an aesthetically pleasing design as more usable.", isTrue: true, explanation: "This cognitive bias shows that users are more likely to overlook minor usability issues in attractive interfaces." }
+                    ]
+                }
+            };
+
+            // --- DOM Elements ---
+            const welcomeScreen = document.getElementById('welcome-screen');
+            const langSelectTitle = document.getElementById('lang-select-title');
+            const langTrBtn = document.getElementById('lang-tr');
+            const langEnBtn = document.getElementById('lang-en');
+            const welcomeTitle = document.getElementById('welcome-title');
+            const welcomeSubtitle = document.getElementById('welcome-subtitle');
+            const playerNameInput = document.getElementById('player-name');
+            const startBtn = document.getElementById('start-btn');
+            const gameContainer = document.getElementById('game-container');
+            const stageIndicator = document.getElementById('stage-indicator');
+            const questionCounter = document.getElementById('question-counter');
+            const timerDisplay = document.getElementById('timer');
+            const progressBar = document.getElementById('progress-bar');
+            const character = document.getElementById('character');
+            const mouth = document.getElementById('mouth');
+            const questionText = document.getElementById('question-text');
+            const trueBtn = document.getElementById('true-btn');
+            const falseBtn = document.getElementById('false-btn');
+            const explanationModal = document.getElementById('explanation-modal');
+            const explanationTitle = document.getElementById('explanation-title');
+            const explanationText = document.getElementById('explanation-text');
+            const nextBtn = document.getElementById('next-btn');
+            const finalScreen = document.getElementById('final-screen');
+            const certificateTitle = document.getElementById('certificate-title');
+            const certificateName = document.getElementById('certificate-name');
+            const certificateSubtitle = document.getElementById('certificate-subtitle');
+            const certificateMessage = document.getElementById('certificate-message');
+            const completionTimeLabel = document.getElementById('completion-time-label');
+            const finalTime = document.getElementById('final-time');
+            const restartBtn = document.getElementById('restart-btn');
+            const tabsContainer = document.getElementById('tabs');
+            const aboutTitle = document.getElementById('about-title');
+            const aboutText = document.getElementById('about-text');
+            const glossaryTitle = document.getElementById('glossary-title');
+            const glossaryContent = document.getElementById('glossary-content');
+            const contactTitle = document.getElementById('contact-title');
+            const contactText = document.getElementById('contact-text');
+            const linkedinLink = document.getElementById('linkedin-link');
+            const copyrightText = document.getElementById('copyright-text');
+            
+            // --- Game State ---
+            let currentLanguage = 'tr';
+            let currentQuestionIndex = 0;
+            let playerName = "";
+            let timerInterval, inactivityTimer;
+            let startTime;
+            let totalSeconds = 0;
+            
+            // --- Sound & Speech Engines ---
+            let soundsReady = false;
+            const screamSound = new Tone.Synth({ oscillator: { type: 'fmsquare', modulationType: 'sawtooth', modulationIndex: 3, harmonicity: 3.4 }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.1 } }).toDestination();
+            const correctSound = new Tone.PolySynth(Tone.Synth, { oscillator: { type: 'sine' }, envelope: { attack: 0.01, decay: 0.1, sustain: 0.2, release: 0.2 } }).toDestination();
+            const synth = window.speechSynthesis;
+            
+            // --- Functions ---
+            function updateUIText() {
+                const t = translations[currentLanguage];
+                document.documentElement.lang = currentLanguage;
+                welcomeTitle.textContent = t.welcomeTitle;
+                welcomeSubtitle.textContent = t.welcomeSubtitle;
+                playerNameInput.placeholder = t.playerNamePlaceholder;
+                startBtn.textContent = t.startButton;
+                explanationTitle.textContent = t.explanationTitle;
+                nextBtn.textContent = t.nextButton;
+                tabsContainer.querySelector('[data-tab="sertifika"]').textContent = t.tabCertificate;
+                tabsContainer.querySelector('[data-tab="hakkinda"]').textContent = t.tabAbout;
+                tabsContainer.querySelector('[data-tab="sozluk"]').textContent = t.tabGlossary;
+                tabsContainer.querySelector('[data-tab="iletisim"]').textContent = t.tabContact;
+                certificateTitle.textContent = t.certificateTitle;
+                certificateSubtitle.textContent = t.certificateSubtitle;
+                completionTimeLabel.textContent = t.completionTimeLabel;
+                restartBtn.textContent = t.restartButton;
+                aboutTitle.textContent = t.aboutTitle;
+                aboutText.textContent = t.aboutText;
+                glossaryTitle.textContent = t.glossaryTitle;
+                contactTitle.textContent = t.contactTitle;
+                contactText.textContent = t.contactText;
+                linkedinLink.textContent = t.linkedinLink;
+                copyrightText.textContent = t.copyrightText;
+            }
+
+            function speak(text, lang) {
+                if (!soundsReady || !synth || synth.speaking) { return; }
+                const utterThis = new SpeechSynthesisUtterance(text);
+                utterThis.lang = lang;
+                utterThis.pitch = lang === 'tr' ? 0.8 : 1;
+                utterThis.rate = lang === 'tr' ? 0.9 : 1;
+                synth.speak(utterThis);
+            }
+
+            function startInactivityTimer() {
+                clearTimeout(inactivityTimer);
+                const text = currentLanguage === 'tr' ? "Orada mısın? Evren bekliyor." : "Are you there? The universe is waiting.";
+                inactivityTimer = setTimeout(() => speak(text, currentLanguage), 15000);
+            }
+
+            function updateBackgroundColor() {
+                const progress = currentQuestionIndex / (translations[currentLanguage].questions.length - 1);
+                const r = 17 + (109 - 17) * progress;
+                const g = 24 + (13 - 24) * progress;
+                const b = 39 + (31 - 39) * progress;
+                document.body.style.backgroundColor = `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+            }
+
+            function startGame() {
+                playerName = playerNameInput.value.trim() || (currentLanguage === 'tr' ? 'İsimsiz Tasarımcı' : 'Nameless Designer');
+                welcomeScreen.classList.add('hidden');
+                gameContainer.classList.remove('hidden');
+                
+                currentQuestionIndex = 0;
+                renderQuestion();
+                updateBackgroundColor();
+                
+                startTime = new Date();
+                timerInterval = setInterval(updateTimer, 1000);
+                const welcomeMessage = currentLanguage === 'tr' ? `Hoş geldin, ${playerName}! Arayüz savaşları başlasın.` : `Welcome, ${playerName}! Let the interface wars begin.`;
+                speak(welcomeMessage, currentLanguage);
+            }
+            
+            function updateTimer() {
+                const now = new Date();
+                totalSeconds = Math.floor((now - startTime) / 1000);
+                const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+                const seconds = String(totalSeconds % 60).padStart(2, '0');
+                timerDisplay.textContent = `${minutes}:${seconds}`;
+            }
+
+            function renderQuestion() {
+                if (currentQuestionIndex >= translations[currentLanguage].questions.length) {
+                    showFinalScreen();
+                    return;
+                }
+                const t = translations[currentLanguage];
+                character.classList.remove('character-scream');
+                mouth.setAttribute('d', 'M 90,160 Q 100,170 110,160');
+                trueBtn.classList.remove('btn-disabled'); falseBtn.classList.remove('btn-disabled');
+                trueBtn.disabled = false; falseBtn.disabled = false;
+
+                const progress = (currentQuestionIndex / t.questions.length) * 100;
+                progressBar.style.width = `${progress}%`;
+                
+                const currentStage = Math.floor(currentQuestionIndex / 10) + 1;
+                stageIndicator.textContent = `${t.stage} ${currentStage}/3`;
+                questionCounter.textContent = `${t.question} ${currentQuestionIndex + 1}/${t.questions.length}`;
+                questionText.textContent = t.questions[currentQuestionIndex].statement;
+                startInactivityTimer();
+            }
+
+            function handleAnswer(userAnswer) {
+                clearTimeout(inactivityTimer);
+                const t = translations[currentLanguage];
+                const currentQuestion = t.questions[currentQuestionIndex];
+                const isCorrect = userAnswer === currentQuestion.isTrue;
+
+                if (isCorrect) {
+                    if(soundsReady) correctSound.triggerAttackRelease(['C4', 'F4', 'A4'], '8n');
+                    speak(t.correctMessages[Math.floor(Math.random() * t.correctMessages.length)], currentLanguage);
+                    explanationText.textContent = currentQuestion.explanation;
+                    explanationModal.classList.remove('hidden');
+                } else {
+                    if(soundsReady) screamSound.triggerAttackRelease('A#5', '0.5s');
+                    speak(t.wrongMessages[Math.floor(Math.random() * t.wrongMessages.length)], currentLanguage);
+                    character.classList.add('character-scream');
+                    mouth.setAttribute('d', 'M 95,155 C 85,175 115,175 105,155 Z'); // Jagged scream mouth
+                    
+                    const buttonToDisable = userAnswer ? trueBtn : falseBtn;
+                    buttonToDisable.classList.add('btn-disabled');
+                    buttonToDisable.disabled = true;
+
+                    setTimeout(() => {
+                        character.classList.remove('character-scream');
+                        mouth.setAttribute('d', 'M 90,160 Q 100,170 110,160');
+                    }, 600);
+                    startInactivityTimer();
+                }
+            }
+            
+            function buildGlossary() {
+                const content = translations[currentLanguage].questions.map(q => {
+                    const termMatch = q.statement.match(/'([^']+)'|\b([A-Z][a-zA-Z\s/'-]+)\b/);
+                    const termText = termMatch ? termMatch[0].replace(/'/g, '') : (currentLanguage === 'tr' ? 'Terim' : 'Term');
+                    return `
+                    <div class="bg-gray-800/50 p-3 rounded-lg">
+                        <p class="font-bold text-green-300">${termText}</p>
+                        <p class="text-gray-400 mt-1">${q.explanation}</p>
+                    </div>
+                    `;
+                }).join('');
+                glossaryContent.innerHTML = content;
+            }
+
+            function showFinalScreen() {
+                 clearInterval(timerInterval);
+                 clearTimeout(inactivityTimer);
+                 progressBar.style.width = `100%`;
+                 gameContainer.classList.add('hidden');
+                 
+                 certificateName.textContent = playerName;
+                 finalTime.textContent = timerDisplay.textContent;
+                 buildGlossary();
+
+                 const t = translations[currentLanguage];
+                 let message = "";
+                 if (totalSeconds <= 120) { message = t.guruMessages.fast; } 
+                 else if (totalSeconds <= 240) { message = t.guruMessages.medium; } 
+                 else { message = t.guruMessages.slow; }
+                 certificateMessage.textContent = `"${message}"`;
+
+                 finalScreen.classList.remove('hidden');
+                 const endMessage = currentLanguage === 'tr' ? `Tebrikler ${playerName}! Görevi tamamladın.` : `Congratulations ${playerName}! Mission complete.`;
+                 speak(endMessage, currentLanguage);
+            }
+            
+            function resetGame() {
+                finalScreen.classList.add('hidden');
+                welcomeScreen.classList.remove('hidden');
+                timerDisplay.textContent = "00:00";
+                playerNameInput.value = "";
+                document.body.style.backgroundColor = '#111827';
+            }
+
+            // --- Event Listeners ---
+            const initialUserAction = () => {
+                if (Tone.context.state !== 'running') { Tone.start(); }
+                soundsReady = true;
+                document.body.removeEventListener('click', initialUserAction, true);
+            };
+            document.body.addEventListener('click', initialUserAction, true);
+
+            langTrBtn.addEventListener('click', () => {
+                currentLanguage = 'tr';
+                langTrBtn.classList.add('selected');
+                langEnBtn.classList.remove('selected');
+                updateUIText();
+            });
+
+            langEnBtn.addEventListener('click', () => {
+                currentLanguage = 'en';
+                langEnBtn.classList.add('selected');
+                langTrBtn.classList.remove('selected');
+                updateUIText();
+            });
+
+            startBtn.addEventListener('click', startGame);
+            trueBtn.addEventListener('click', () => handleAnswer(true));
+            falseBtn.addEventListener('click', () => handleAnswer(false));
+
+            nextBtn.addEventListener('click', () => {
+                currentQuestionIndex++;
+                explanationModal.classList.add('hidden');
+                renderQuestion();
+                updateBackgroundColor();
+            });
+
+            restartBtn.addEventListener('click', resetGame);
+            
+            tabsContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('tab-btn')) {
+                    const tabId = e.target.dataset.tab;
+                    tabsContainer.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    finalScreen.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    document.getElementById(tabId).classList.add('active');
+                }
+            });
+
+            // Initial UI Text Load
+            updateUIText();
+        });
+    </script>
+</body>
+</html>
